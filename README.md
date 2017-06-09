@@ -10,3 +10,5 @@
 
 
 #### 6. QuestionController가 multi thread에서 문제가 되는 이유를 설명하시오.
+QuestionController 인스턴스가 생기는 heap 영역은 thread 들이 공유하는 메모리 영역이다. 따라서 하나의 thread에서 
+초기화된 멤버변수가 다른 thread가 초기화될 때 덮어 써질 수 있다.

@@ -1,9 +1,5 @@
 package next.controller.qna;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import core.web.argumentresolver.LoginUser;
 import next.CannotOperateException;
 import next.dao.QuestionDao;
-import next.model.Answer;
 import next.model.Question;
 import next.model.User;
 import next.service.QnaService;
@@ -26,18 +21,11 @@ public class QuestionController {
 	private QuestionDao questionDao;
 	@Autowired
 	private QnaService qnaService;
-	
-	private Question question;
-	
-	private List<Answer> answers;
 
 	@RequestMapping(value = "/{questionId}", method = RequestMethod.GET)
 	public String show(@PathVariable long questionId, Model model) throws Exception {
-	    question = qnaService.findById(questionId);
-	    answers = qnaService.findAllByQuestionId(questionId);
-	    
-		model.addAttribute("question", question);
-		model.addAttribute("answers", answers);
+		model.addAttribute("question", qnaService.findById(questionId));
+		model.addAttribute("answers", qnaService.findAllByQuestionId(questionId));
 		return "/qna/show";
 	}
 
