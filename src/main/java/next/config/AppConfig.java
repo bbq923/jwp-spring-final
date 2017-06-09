@@ -1,8 +1,9 @@
 package next.config;
 
+import java.beans.PropertyVetoException;
+
 import javax.sql.DataSource;
 
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +16,8 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
+
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @Configuration
 @EnableAspectJAutoProxy(proxyTargetClass=true)
@@ -37,11 +40,11 @@ public class AppConfig {
 	private String password;
 	
 	@Bean
-	public DataSource dataSource() {
-		BasicDataSource ds = new BasicDataSource();
-		ds.setDriverClassName(driverClass);
-		ds.setUrl(url);
-		ds.setUsername(username);
+	public DataSource dataSource() throws PropertyVetoException {
+		ComboPooledDataSource ds = new ComboPooledDataSource();
+		ds.setDriverClass(driverClass);
+		ds.setJdbcUrl(url);
+		ds.setUser(username);
 		ds.setPassword(password);
 		return ds;
 	}
