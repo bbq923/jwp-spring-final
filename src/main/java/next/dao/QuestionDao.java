@@ -11,6 +11,8 @@ import javax.annotation.Resource;
 
 import next.model.Question;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
@@ -20,11 +22,14 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class QuestionDao {
+	private static final Logger log = LoggerFactory.getLogger(QuestionDao.class);
+	
 	@Resource
 	private JdbcTemplate jdbcTemplate;
 	
     public Question insert(Question question) {
-        String sql = "INSERT INTO QUESTIONS (writer, title, contents, createdDate) VALUES (?, ?, ?, ?)";
+    	log.debug("I got a question : {}", question);
+        String sql = "INSERT INTO QUESTIONS (writer, title, contents, createdDate, countOfAnswer) VALUES (?, ?, ?, ?, ?)";
         PreparedStatementCreator psc = new PreparedStatementCreator() {
 			@Override
 			public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
@@ -33,6 +38,7 @@ public class QuestionDao {
 				pstmt.setString(2, question.getTitle());
 				pstmt.setString(3, question.getContents());
 				pstmt.setTimestamp(4, new Timestamp(question.getTimeFromCreateDate()));
+				pstmt.setInt(5, question.getCountOfComment());
 				return pstmt;
 			}
 		};
@@ -43,7 +49,7 @@ public class QuestionDao {
     }
 	
 	public List<Question> findAll() {
-		String sql = "SELECT questionId, writer, title, createdDate, countOfAnswer FROM QUESTIONS "
+		String sql = "SELECT questionId, writer, title, createdDate, countOfAnswer, deleted FROM QUESTIONS "
 				+ "order by questionId desc";
 		
 		RowMapper<Question> rm = new RowMapper<Question>() {
@@ -52,7 +58,8 @@ public class QuestionDao {
 				return new Question(rs.getLong("questionId"),
 						rs.getString("writer"), rs.getString("title"), null,
 						rs.getTimestamp("createdDate"),
-						rs.getInt("countOfAnswer"));
+						rs.getInt("countOfAnswer"),
+						rs.getBoolean("deleted"));
 			}
 			
 		};
@@ -61,7 +68,7 @@ public class QuestionDao {
 	}
 
 	public Question findById(long questionId) {
-		String sql = "SELECT questionId, writer, title, contents, createdDate, countOfAnswer FROM QUESTIONS "
+		String sql = "SELECT questionId, writer, title, contents, createdDate, countOfAnswer, deleted FROM QUESTIONS "
 				+ "WHERE questionId = ?";
 		
 		RowMapper<Question> rm = new RowMapper<Question>() {
@@ -71,7 +78,8 @@ public class QuestionDao {
 						rs.getString("writer"), rs.getString("title"),
 						rs.getString("contents"),
 						rs.getTimestamp("createdDate"),
-						rs.getInt("countOfAnswer"));
+						rs.getInt("countOfAnswer"),
+						rs.getBoolean("deleted"));
 			}
 		};
 		
@@ -87,17 +95,22 @@ public class QuestionDao {
 	}
 
 	public void delete(long questionId) {
-		String sql = "DELETE FROM QUESTIONS WHERE questionId = ?";
+		String sql = "UPDATE QUESTIONS set deleted = 1 WHERE questionId = ?";
 		jdbcTemplate.update(sql, questionId);
+		log.debug("deleted question : {}", findById(questionId));
 	}
 
 	public void increaseCountOfAnswer(long questionId) {
-		String sql = "UPDATE QUESTIONS set countOfAnswer = countOfAnswer + 1 WHERE questionId = ?";
+		log.debug("before increase : {}", findById(questionId).getCountOfComment());
+		String sql = "UPDATE QUESTIONS set countOfAnswer = countOfAnswer+1 WHERE questionId = ?";
 		jdbcTemplate.update(sql, questionId);
+		log.debug("after increase : {}", findById(questionId).getCountOfComment());
 	}
 
 	public void decreaseCountOfAnswer(long questionId) {
-		String sql = "UPDATE QUESTIONS set countOfAnswer = countOfAnswer - 1 WHERE questionId = ?";
+		log.debug("before decrease : {}", findById(questionId).getCountOfComment());
+		String sql = "UPDATE QUESTIONS set countOfAnswer = countOfAnswer-1 WHERE questionId = ?";
 		jdbcTemplate.update(sql, questionId);
+		log.debug("before decrease : {}", findById(questionId).getCountOfComment());
 	}
 }

@@ -62,6 +62,10 @@ public class QnaService {
 			throw new CannotOperateException("다른 사용자가 추가한 댓글이 존재해 삭제할 수 없습니다.");
 		}
 
+		for (Answer answer : answers) {
+			answerDao.delete(answer.getAnswerId());
+			questionDao.decreaseCountOfAnswer(questionId);
+		}
 		questionDao.delete(questionId);
 	}
 

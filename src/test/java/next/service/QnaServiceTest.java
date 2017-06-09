@@ -82,7 +82,7 @@ public class QnaServiceTest {
 	}
     
     private Question newQuestion(long questionId, String userId) {
-    	return new Question(questionId, userId, "title", "contents", new Date(), 0);
+    	return new Question(questionId, userId, "title", "contents", new Date(), 0, false);
     }
     
     private Answer newAnswer(String userId) {

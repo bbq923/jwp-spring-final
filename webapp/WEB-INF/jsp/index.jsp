@@ -14,6 +14,7 @@
 		<div class="panel panel-default qna-list">
 			<ul class="list">
 				<c:forEach items="${questions}" var="each">
+				<c:if test="${not each.deleted}">
 				<li>
 					<div class="wrap">
 						<div class="main">
@@ -32,6 +33,7 @@
 						</div>
 					</div>
 				</li>
+				</c:if>
 				</c:forEach>
 			</ul>
 			<div class="row">

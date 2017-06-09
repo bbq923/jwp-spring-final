@@ -25,17 +25,18 @@ public class Question {
 	}
 
 	public Question(String writer, String title, String contents) {
-		this(0, writer, title, contents, new Date(), 0);
+		this(0, writer, title, contents, new Date(), 0, false);
 	}
 
 	public Question(long questionId, String writer, String title, String contents, Date createdDate,
-			int countOfComment) {
+			int countOfComment, boolean deleted) {
 		this.questionId = questionId;
 		this.writer = writer;
 		this.title = title;
 		this.contents = contents;
 		this.createdDate = createdDate;
 		this.countOfComment = countOfComment;
+		this.deleted = deleted;
 	}
 
 	public long getQuestionId() {
@@ -78,6 +79,10 @@ public class Question {
 		return countOfComment;
 	}
 	
+	public boolean isDeleted() {
+		return deleted;
+	}
+	
 	public Question newQuestion(User user) {
 		return new Question(user.getUserId(), title, contents);
 	}
@@ -94,7 +99,8 @@ public class Question {
 	@Override
 	public String toString() {
 		return "Question [questionId=" + questionId + ", writer=" + writer + ", title=" + title + ", contents="
-				+ contents + ", createdDate=" + createdDate + ", countOfComment=" + countOfComment + "]";
+				+ contents + ", createdDate=" + createdDate + ", countOfComment=" + countOfComment + ", deleted="
+				+ deleted + "]";
 	}
 
 	@Override

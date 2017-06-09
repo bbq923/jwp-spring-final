@@ -71,6 +71,7 @@ public class ApiQuestionController {
     	Answer answer = new Answer(loginUser.getUserId(), contents, questionId);
     	Answer savedAnswer = answerDao.insert(answer);
 		questionDao.increaseCountOfAnswer(savedAnswer.getQuestionId());
+		log.debug("count of the answer: {}", questionDao.findById(savedAnswer.getQuestionId()).getCountOfComment());
 
 		values.put("answer", savedAnswer);
 		values.put("result", Result.ok());
@@ -81,12 +82,13 @@ public class ApiQuestionController {
 	public Result deleteAnswer(@LoginUser User loginUser, @PathVariable long answerId, @PathVariable long questionId) throws Exception {
 		Answer answer = answerDao.findById(answerId);
 		if (!answer.isSameUser(loginUser)) {
-			return Result.fail("다른 사용자가 쓴 글을 삭제할 수 없습니다.");
+			return Result.fail("다른 사용자가 쓴 답변을 삭제할 수 없습니다.");
 		}
 
 		try {
 			answerDao.delete(answerId);
 			questionDao.decreaseCountOfAnswer(questionId);
+			log.debug("count of the answer: {}", questionDao.findById(answer.getQuestionId()).getCountOfComment());
 			return Result.ok();
 		} catch (DataAccessException e) {
 			return Result.fail(e.getMessage());
