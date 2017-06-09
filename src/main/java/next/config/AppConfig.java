@@ -17,12 +17,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 
 @Configuration
+@EnableAspectJAutoProxy(proxyTargetClass=true)
 @ComponentScan(
-	basePackages = { "next.controller", "next.service", "next.dao" },
+	basePackages = { "next.support", "next.controller", "next.service", "next.dao" },
 	excludeFilters = @ComponentScan.Filter(value = Controller.class, type = FilterType.ANNOTATION)
 )
 @PropertySource("classpath:application.properties")
-@EnableAspectJAutoProxy(proxyTargetClass=true)
 public class AppConfig {
 	@Value("${db.driver.class}")
 	private String driverClass;
