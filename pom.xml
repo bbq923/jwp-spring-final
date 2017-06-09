@@ -148,11 +148,19 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.0.1</version>
 		</dependency>
+
 		<!-- <dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-dbcp2</artifactId>
 			<version>2.1.1</version>
 		</dependency> -->
+
+		<!-- dbcp 주석 처리시 commons-logging ClassNotFoundError 가 발생함. 그래서 따로 추가 -->
+		<dependency>
+		    <groupId>commons-logging</groupId>
+		    <artifactId>commons-logging</artifactId>
+		    <version>1.2</version>
+		</dependency>
 		
 		<dependency>
 			<groupId>com.mchange</groupId>

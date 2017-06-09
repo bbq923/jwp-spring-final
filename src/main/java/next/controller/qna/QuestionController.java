@@ -2,6 +2,8 @@ package next.controller.qna;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,6 +47,7 @@ public class QuestionController {
 			return "redirect:/users/loginForm";
 		}
 		model.addAttribute("question", new Question());
+		model.addAttribute("isUpdate", false);
 		return "/qna/form";
 	}
 
@@ -54,6 +57,23 @@ public class QuestionController {
 			return "redirect:/users/loginForm";
 		}
 		questionDao.insert(question.newQuestion(loginUser));
+		return "redirect:/";
+	}
+
+	@RequestMapping(value = "/{questionId}/edit", method = RequestMethod.GET)
+	public String editForm(@LoginUser User loginUser, @PathVariable long questionId, Model model) throws Exception {
+		Question question = qnaService.findById(questionId);
+		if (!question.isSameUser(loginUser)) {
+			throw new IllegalStateException("다른 사용자가 쓴 글을 수정할 수 없습니다.");
+		}
+		model.addAttribute("question", question);
+		model.addAttribute("isUpdate", true);
+		return "/qna/form";
+	}
+
+	@RequestMapping(value = "/{questionId}", method = RequestMethod.PUT)
+	public String edit(@LoginUser User loginUser, @PathVariable long questionId, Question editQuestion) throws Exception {
+		qnaService.updateQuestion(questionId, editQuestion, loginUser);
 		return "redirect:/";
 	}
 
