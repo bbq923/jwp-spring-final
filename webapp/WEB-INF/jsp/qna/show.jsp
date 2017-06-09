@@ -58,6 +58,7 @@
 						<p class="qna-comment-count"><strong>${question.countOfComment}</strong>개의 의견</p>
 						<div class="qna-comment-slipp-articles">
 							<c:forEach items="${answers}" var="each">
+							<c:if test="${not each.deleted}">
 							<article class="article">
 								<div class="article-header">
 									<div class="article-header-thumb">
@@ -84,6 +85,7 @@
 									</ul>
 								</div>
 							</article>
+							</c:if>
                             </c:forEach>
 							<div class="answerWrite">
                             <form name="answer" action="/api/questions/${question.questionId}/answers" method="post">

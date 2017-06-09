@@ -1,4 +1,5 @@
 $(".answerWrite input[type=submit]").click(addAnswer);
+var answerCount = $(".qna-comment-count strong").text();
 
 function addAnswer(e) {
   e.preventDefault();
@@ -23,7 +24,8 @@ function onSuccess(json, status){
 	  var answer = json.answer;
 	  var answerTemplate = $("#answerTemplate").html();
 	  var template = answerTemplate.format(answer.writer, new Date(answer.createdDate), answer.contents, answer.questionId, answer.answerId);
-	  $(".qna-comment-slipp-articles").prepend(template);	  
+	  $(".qna-comment-slipp-articles").prepend(template);
+	  $(".qna-comment-count strong").text(++answerCount);
   } else {
 	  alert(result.message);
   }
@@ -52,6 +54,7 @@ function deleteAnswer(e) {
     success: function (result, status) {
       if (result.status) {
         deleteBtn.closest('article').remove();
+        $(".qna-comment-count strong").text(--answerCount);
       } else {
     	alert(result.message);  
       }

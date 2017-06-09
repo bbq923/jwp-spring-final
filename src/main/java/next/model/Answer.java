@@ -16,15 +16,16 @@ public class Answer {
 	private boolean deleted = false;
 	
 	public Answer(String writer, String contents, long questionId) {
-		this(0, writer, contents, new Date(), questionId);
+		this(0, writer, contents, new Date(), questionId, false);
 	}
 	
-	public Answer(long answerId, String writer, String contents, Date createdDate, long questionId) {
+	public Answer(long answerId, String writer, String contents, Date createdDate, long questionId, boolean deleted) {
 		this.answerId = answerId;
 		this.writer = writer;
 		this.contents = contents;
 		this.createdDate = createdDate;
 		this.questionId = questionId;
+		this.deleted = deleted;
 	}
 	
 	public long getAnswerId() {
@@ -50,7 +51,11 @@ public class Answer {
 	public long getQuestionId() {
 		return questionId;
 	}
-	
+
+	public boolean isDeleted() {
+		return deleted;
+	}
+
 	public boolean isSameUser(User user) {
 		if (user == null) {
 			return false;
@@ -82,8 +87,7 @@ public class Answer {
 
 	@Override
 	public String toString() {
-		return "Answer [answerId=" + answerId + ", writer=" + writer
-				+ ", contents=" + contents + ", createdDate=" + createdDate
-				+ ", questionId=" + questionId + "]";
+		return "Answer [answerId=" + answerId + ", writer=" + writer + ", contents=" + contents + ", createdDate="
+				+ createdDate + ", questionId=" + questionId + ", deleted=" + deleted + "]";
 	}
 }

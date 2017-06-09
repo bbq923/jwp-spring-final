@@ -7,8 +7,8 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 
-import next.model.Answer;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -17,8 +17,12 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import next.model.Answer;
+
 @Repository
 public class AnswerDao {
+	private static final Logger log = LoggerFactory.getLogger(AnswerDao.class);
+
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
@@ -42,7 +46,7 @@ public class AnswerDao {
     }
 
     public Answer findById(long answerId) {
-        String sql = "SELECT answerId, writer, contents, createdDate, questionId FROM ANSWERS WHERE answerId = ?";
+        String sql = "SELECT answerId, writer, contents, createdDate, questionId, deleted FROM ANSWERS WHERE answerId = ?";
 
         RowMapper<Answer> rm = new RowMapper<Answer>() {
             @Override
@@ -51,7 +55,8 @@ public class AnswerDao {
                 		rs.getString("writer"), 
                 		rs.getString("contents"),
                         rs.getTimestamp("createdDate"), 
-                        rs.getLong("questionId"));
+                        rs.getLong("questionId"),
+                        rs.getBoolean("deleted"));
             }
         };
 
@@ -59,7 +64,7 @@ public class AnswerDao {
     }
 
     public List<Answer> findAllByQuestionId(long questionId) {
-        String sql = "SELECT answerId, writer, contents, createdDate FROM ANSWERS WHERE questionId = ? "
+        String sql = "SELECT answerId, writer, contents, createdDate, deleted FROM ANSWERS WHERE questionId = ? "
                 + "order by answerId desc";
 
         RowMapper<Answer> rm = new RowMapper<Answer>() {
@@ -69,15 +74,18 @@ public class AnswerDao {
                 		rs.getString("writer"), 
                 		rs.getString("contents"),
                         rs.getTimestamp("createdDate"), 
-                        questionId);
+                        questionId,
+                        rs.getBoolean("deleted"));
             }
         };
 
         return jdbcTemplate.query(sql, rm, questionId);
     }
 
+    // DB에서 완전히 삭제하는 게 아니라 삭제 상태(deleted) 를 false에서 true로 변경
 	public void delete(Long answerId) {
-        String sql = "DELETE FROM ANSWERS WHERE answerId = ?";
+        String sql = "UPDATE ANSWERS set deleted = true WHERE answerId = ?";
         jdbcTemplate.update(sql, answerId);
+        log.debug("updated answer: {}", findById(answerId));
 	}
 }

@@ -6,7 +6,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,7 +36,7 @@ public class ApiQuestionController {
 	private AnswerDao answerDao;
 	@Autowired
 	private QnaService qnaService;
-	
+
 	@RequestMapping(value="/{questionId}", method=RequestMethod.DELETE)
 	public Result deleteQuestion(@LoginUser User loginUser, @PathVariable long questionId) throws Exception {
 		try {
@@ -44,22 +46,50 @@ public class ApiQuestionController {
 			return Result.fail(e.getMessage());
 		}
 	}
-	
+
+	@RequestMapping(value="/{questionId}", method=RequestMethod.GET)
+	public Question findQuestion(@PathVariable long questionId) throws Exception {
+		log.debug("question id : {}", questionId);
+		return qnaService.findById(questionId);
+	}
+
+	@RequestMapping(value="", method=RequestMethod.POST)
+	public void addQuestion(@RequestBody Question question) {
+		log.debug("new question: {}", question);
+		questionDao.insert(question);
+	}
+
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public List<Question> list() throws Exception {
 		return questionDao.findAll();
 	}
-	
+
 	@RequestMapping(value = "/{questionId}/answers", method = RequestMethod.POST)
 	public Map<String, Object> addAnswer(@LoginUser User loginUser, @PathVariable long questionId, String contents) throws Exception {
-		log.debug("questionId : {}, contents : {}", questionId, contents);
+		log.debug("questionId : {}, answer contents : {}", questionId, contents);
     	Map<String, Object> values = Maps.newHashMap();
     	Answer answer = new Answer(loginUser.getUserId(), contents, questionId);
     	Answer savedAnswer = answerDao.insert(answer);
-		questionDao.updateCountOfAnswer(savedAnswer.getQuestionId());
-		
+		questionDao.increaseCountOfAnswer(savedAnswer.getQuestionId());
+
 		values.put("answer", savedAnswer);
 		values.put("result", Result.ok());
 		return values;
+	}
+
+	@RequestMapping(value = "/{questionId}/answers/{answerId}", method = RequestMethod.DELETE)
+	public Result deleteAnswer(@LoginUser User loginUser, @PathVariable long answerId, @PathVariable long questionId) throws Exception {
+		Answer answer = answerDao.findById(answerId);
+		if (!answer.isSameUser(loginUser)) {
+			return Result.fail("다른 사용자가 쓴 글을 삭제할 수 없습니다.");
+		}
+
+		try {
+			answerDao.delete(answerId);
+			questionDao.decreaseCountOfAnswer(questionId);
+			return Result.ok();
+		} catch (DataAccessException e) {
+			return Result.fail(e.getMessage());
+		}
 	}
 }
